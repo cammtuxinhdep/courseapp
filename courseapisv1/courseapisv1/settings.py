@@ -14,22 +14,19 @@ from pathlib import Path
 
 from django.conf.global_settings import AUTH_USER_MODEL
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Xác định thư mục gốc của dự án
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# Khóa bí mật, cần giữ an toàn khi triển khai
 SECRET_KEY = 'django-insecure-)aea9tpzo9lhxw$%2y39*zk$n!k)hn!-zwltie@olwy8s&#dc9'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Chế độ debug, không nên bật trong môi trường production
 DEBUG = True
 
+# Danh sách các host được phép truy cập
 ALLOWED_HOSTS = []
 
-# Application definition
-
+# Các ứng dụng được cài đặt trong Django
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,11 +34,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'courses.apps.CoursesConfig',
-    'ckeditor',
-    'ckeditor_uploader'
+    'courses.apps.CoursesConfig',  # Ứng dụng custom
+    'ckeditor',  # Trình soạn thảo văn bản
+    'ckeditor_uploader',  # Hỗ trợ tải ảnh lên CKEditor
+    'rest_framework',  # Django REST framework
+    'drf_yasg',  # Công cụ tạo tài liệu API
+    'oauth2_provider' # Giao thức chứng thực người dùng giữa các dịch vụ liên quan
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.contrib.rest_framework.OAuth2Authentication',)
+}
+
+# Cấu hình middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,12 +57,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Cấu hình URL gốc của dự án
 ROOT_URLCONF = 'courseapisv1.urls'
 
+# Cấu hình template
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # Thư mục chứa template, có thể thêm nếu cần
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,67 +77,68 @@ TEMPLATES = [
     },
 ]
 
+# Cấu hình WSGI
 WSGI_APPLICATION = 'courseapisv1.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# Cấu hình database (sử dụng MySQL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'coursedb',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': ''  # mặc định localhost
-
+        'NAME': 'coursedb',  # Tên database
+        'USER': 'root',  # Tài khoản MySQL
+        'PASSWORD': 'Abc123',  # Mật khẩu MySQL
+        'HOST': ''  # Nếu để trống thì mặc định là localhost
     }
 }
 
+# Mô hình người dùng tùy chỉnh
 AUTH_USER_MODEL = 'courses.User'
 
+# Đường dẫn lưu trữ media
 MEDIA_ROOT = '%s/courses/static/' % BASE_DIR
 
+# Đường dẫn upload của CKEditor
 CKEDITOR_UPLOAD_PATH = "ckeditors/lessons/"
 
+# Cấu hình PyMySQL để sử dụng MySQL trong Django
 import pymysql
 
 pymysql.install_as_MySQLdb()
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+# Cấu hình Cloudinary để lưu trữ media trên cloud
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 
+cloudinary.config(
+    cloud_name="dlnru7sj1",
+    api_key="154963693125859",
+    api_secret="YEgFh6KjnIJISK1AMcYZEhor5fU",
+    secure=True
+)
+
+# Cấu hình xác thực mật khẩu
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
+# Cấu hình ngôn ngữ và múi giờ
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
+# Cấu hình static files
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
+# Kiểu dữ liệu khóa chính mặc định
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#OAUTH2_PROVIDER = { 'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore' }
+
+# Lấy từ http://127.0.0.1:8000/o/applications/
+CLIENT_ID = '3T2PWZhSCZC6wNIb7e8WdmtWg2Np8bRwox6Sai1D'
+CLIENT_SECRET = 'Z17vvOt6FyCqLVmeT82HppytSxfHsIoE8PZL8SjAgd0FyXJMPPsM2xiTvuvCfV9NVxcu0tyKJYcQ5GCp7cMkiWGH4lAU7t2nv2dSRgXlNB4XwfLdxqY7JHtW1wXNFLWa'
